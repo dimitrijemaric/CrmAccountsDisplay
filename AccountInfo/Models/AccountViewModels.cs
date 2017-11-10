@@ -1,8 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace AccountInfo.Models
 {
+
     public class ExternalLoginConfirmationViewModel
     {
         [Required]
@@ -110,3 +112,4 @@ namespace AccountInfo.Models
         public string Email { get; set; }
     }
 }
+
