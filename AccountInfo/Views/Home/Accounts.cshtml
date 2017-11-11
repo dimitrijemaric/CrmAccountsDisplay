@@ -1,4 +1,6 @@
 ﻿
+@using System.Configuration
+@using AccountInfo.Models
 @model List<AccountInfo.Models.CrmAccountInfoViewModel>
     
 
@@ -12,7 +14,7 @@
     
 </div>
 
-
+<div id="accountsTable">
 <table class="table">
     <tr>
         <th>
@@ -20,28 +22,42 @@
         </th>
 
         <th>
-            Guid
+            Account Id
         </th>
         
         <th>
             Account Location
         </th>
 
+        <th>
+            Contacts
+        </th>
 
         <th></th>
     </tr>
  
     @foreach (var item in Model) {
         <tr class="@(item.NoChildContacts == true ? "classRed": item.NoContactData ? "classOrange" : "")">>
-            <td>@Html.DisplayFor(modelItem => item.AccountName)
+            <td><a href=@string.Concat(@ConfigurationManager.AppSettings["baseCrmUrl"] as string, "/main.aspx?etn=account&pagetype=entityrecord&id=%7B",@item.AccountId,"%7D") target="_blank">@item.AccountName</a>
             </td>
             <td>@Html.DisplayFor(modelItem => item.AccountId)
             </td>
             <td>@Html.DisplayFor(modelItem => item.AccountAddress)
             </td>
+            <td>
+                @if (item.ContactsCount == 0)
+                {
+                    @Html.DisplayFor(modelItem => item.ContactsCount);
+                }
+                else
+                {
+                    @Html.ActionLink(item.ContactsCount.ToString(), "Contacts", new { item.AccountId, item.AccountName});
+                }
+            </td>
         </tr>
     }
-</table>
+</table>></div>
+
 
 
 

@@ -1,0 +1,51 @@
+﻿
+@using System.Configuration
+@model List<AccountInfo.Models.CrmContactInfoViewModel>
+
+
+
+@{
+    ViewBag.Title = "Contacts";
+}
+
+
+
+
+<div class="jumbotron">
+    <h1>Task1</h1>
+    <p class="lead">Child contacts of account @ViewBag.ParentAccountName.</p>
+    
+</div>
+
+<div id="contactsTable">
+    <table class="table">
+        <tr>
+            <th>
+                Contact Name
+            </th>
+
+            <th>
+                Email
+            </th>
+        
+            <th>
+               Location
+            </th>
+
+
+            <th></th>
+        </tr>
+ 
+        @foreach (var item in Model) {
+            <tr>
+                <td><a href=@string.Concat(@ConfigurationManager.AppSettings["baseCrmUrl"] as string, "/main.aspx?etn=contact&pagetype=entityrecord&id=%7B",@item.ContactId,"%7D") target="_blank">@string.Concat(item.ContactName, item.isPrimary ? "*" : "")</a>
+                </td>
+                <td>@Html.DisplayFor(modelItem => item.Email)
+                </td>
+                <td>@Html.DisplayFor(modelItem => item.Location)
+                </td>
+             
+            </tr>
+        }
+    </table>></div>
+
