@@ -24,16 +24,35 @@ namespace AccountInfo.Controllers
 
         public HomeController(IOrganizationService service)
         {
+           
+
             _service = service;
             _crmManager = new CrmManager(_service);
         }
 
         public ActionResult Accounts()
         {
+           
+
             List<CrmAccountInfoViewModel> crmAccountsInfoCollection = new List<CrmAccountInfoViewModel>();
+
+            if (_service == null)
+            {
+                // log the issue somwehere
+
+                ViewBag.ConnectionError = "yes";
+
+                return View(crmAccountsInfoCollection);
+            }
+
 
             var accountColumns = new ColumnSet(new string[] {"name", "address1_city", "accountid", "primarycontactid"});
             var activeAccounts = _crmManager.RetrieveActiveRecordsForEntity("account", accountColumns);
+
+            if (activeAccounts.Entities.Count == 0)
+            {
+                return View(crmAccountsInfoCollection);
+            }
 
             foreach (var account in activeAccounts.Entities)
             {

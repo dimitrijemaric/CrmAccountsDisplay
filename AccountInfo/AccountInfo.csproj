@@ -208,6 +208,7 @@
     </Compile>
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\CrmAccountInfoViewModel.cs" />
+    <Compile Include="Models\CrmConnectionException.cs" />
     <Compile Include="Models\CrmContactInfoViewModel.cs" />
     <Compile Include="Models\IdentityModels.cs" />
     <Compile Include="Models\ManageViewModels.cs" />

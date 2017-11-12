@@ -4,6 +4,7 @@ using System.Configuration;
 using System.Net;
 using System.ServiceModel.Description;
 using AccountInfo.Dynamics_CRM;
+using AccountInfo.Models;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Client;
 using Ninject.Web.Common.WebHost;
@@ -48,7 +49,13 @@ namespace AccountInfo
         /// <returns>The created kernel.</returns>
         private static IKernel CreateKernel()
         {
-            var kernel = new StandardKernel();
+            var kernel = new StandardKernel
+            (
+                new NinjectSettings
+                {
+                    AllowNullInjection = true
+                }
+            );
             try
             {
                 kernel.Bind<Func<IKernel>>().ToMethod(ctx => () => new Bootstrapper().Kernel);
@@ -57,6 +64,8 @@ namespace AccountInfo
                 RegisterServices(kernel);
                 return kernel;
             }
+         
+
             catch
             {
                 kernel.Dispose();
@@ -70,7 +79,7 @@ namespace AccountInfo
         /// <param name="kernel">The kernel.</param>
         private static void RegisterServices(IKernel kernel)
         {
-            kernel.Bind<IOrganizationService>().ToMethod(context => new CrmServiceFactory().CreateOrganizationService(null)).Named("production");
+            kernel.Bind<IOrganizationService>().ToMethod(context => new CrmServiceFactory().CreateOrganizationService(null));
         }        
     }
 }

@@ -7,6 +7,7 @@ using System.Net;
 using System.ServiceModel.Description;
 using System.Text;
 using System.Threading.Tasks;
+using AccountInfo.Models;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Client;
 using Microsoft.Xrm.Sdk.Query;
@@ -22,31 +23,39 @@ namespace AccountInfo.Dynamics_CRM
 
         public IOrganizationService CreateOrganizationService(Guid? userId)
         {
+            try
+            {
 
-            var crmConnectionString = ConfigurationManager.ConnectionStrings["CrmConnection"].ConnectionString;
-            var crmUrl = crmConnectionString.Split(';')[0];
-            var crmUsername = crmConnectionString.Split(';')[1];
-            var crmPassword = crmConnectionString.Split(';')[2];
+                var crmConnectionString = ConfigurationManager.ConnectionStrings["CrmConnection"].ConnectionString;
+                var crmUrl = crmConnectionString.Split(';')[0];
+                var crmUsername = crmConnectionString.Split(';')[1];
+                var crmPassword = crmConnectionString.Split(';')[2];
 
-            Uri oUri = new Uri(crmUrl);
+                Uri oUri = new Uri(crmUrl);
 
-            ClientCredentials clientCredentials = new ClientCredentials();
-            clientCredentials.UserName.UserName = crmUsername;
-            clientCredentials.UserName.Password = crmPassword;
-            clientCredentials.Windows.ClientCredential = CredentialCache.DefaultNetworkCredentials;
-
-
-
-             var _serviceProxy = new OrganizationServiceProxy(
-                oUri,
-                null,
-                clientCredentials,
-                null);
+                ClientCredentials clientCredentials = new ClientCredentials();
+                clientCredentials.UserName.UserName = crmUsername;
+                clientCredentials.UserName.Password = crmPassword;
+                clientCredentials.Windows.ClientCredential = CredentialCache.DefaultNetworkCredentials;
 
 
-            _serviceProxy.EnableProxyTypes();
-            serviceProxyBag.Add(_serviceProxy);
-            return _serviceProxy;
+
+                var _serviceProxy = new OrganizationServiceProxy(
+                   oUri,
+                   null,
+                   clientCredentials,
+                   null);
+
+
+                _serviceProxy.EnableProxyTypes();
+                serviceProxyBag.Add(_serviceProxy);
+                return _serviceProxy;
+            }
+            catch
+            {
+
+                return null;
+            }
         }
 
   

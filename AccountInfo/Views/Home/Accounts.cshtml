@@ -2,7 +2,7 @@
 @using System.Configuration
 @using AccountInfo.Models
 @model List<AccountInfo.Models.CrmAccountInfoViewModel>
-    
+
 
 @{
     ViewBag.Title = "Home Page";
@@ -10,54 +10,77 @@
 
 <div class="jumbotron">
     <h1>Task1</h1>
-    <p class="lead">Active account listed in a grid.</p>
-    
+
+
+    @if (ViewBag.ConnectionError == "yes")
+
+    {
+        <p class="lead">Crm connection attempt failed.</p>
+    }
+
+
+    else if (Model.Count == 0)
+    {
+        <p class="lead">There are no accounts to display.</p>
+    }
+
+    else
+    {
+        <p class="lead">Active account listed in a grid.</p>
+
+
+    }
+
 </div>
 
-<div id="accountsTable">
-<table class="table">
-    <tr>
-        <th>
-            Account Name
-        </th>
+<div id="accountsTable" style="@(Model.Count > 0 ? "display:block" : "display:none")">
+    <table class="table">
+        <tr>
+            <th>
+                Account Name
+            </th>
 
-        <th>
-            Account Id
-        </th>
-        
-        <th>
-            Account Location
-        </th>
+            <th>
+                Account Id
+            </th>
 
-        <th>
-            Contacts
-        </th>
+            <th>
+                Account Location
+            </th>
 
-        <th></th>
-    </tr>
- 
-    @foreach (var item in Model) {
-        <tr class="@(item.NoChildContacts == true ? "classRed": item.NoContactData ? "classOrange" : "")">>
-            <td><a href=@string.Concat(@ConfigurationManager.AppSettings["baseCrmUrl"] as string, "/main.aspx?etn=account&pagetype=entityrecord&id=%7B",@item.AccountId,"%7D") target="_blank">@item.AccountName</a>
-            </td>
-            <td>@Html.DisplayFor(modelItem => item.AccountId)
-            </td>
-            <td>@Html.DisplayFor(modelItem => item.AccountAddress)
-            </td>
-            <td>
-                @if (item.ContactsCount == 0)
+            <th>
+                Contacts
+            </th>
+
+            <th></th>
+        </tr>
+
+
+
+        @foreach (var item in Model)
+        {
+            <tr class="@(item.NoChildContacts == true ? "classRed": item.NoContactData ? "classOrange" : "")">
+                >
+                <td>
+                    <a href=@string.Concat(@ConfigurationManager.AppSettings["baseCrmUrl"] as string, "/main.aspx?etn=account&pagetype=entityrecord&id=%7B",@item.AccountId,"%7D") target="_blank">@item.AccountName</a>
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.AccountId)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.AccountAddress)
+                </td>
+                <td>
+                    @if (item.ContactsCount == 0)
                 {
-                    @Html.DisplayFor(modelItem => item.ContactsCount);
+                        @Html.DisplayFor(modelItem => item.ContactsCount);
                 }
                 else
                 {
-                    @Html.ActionLink(item.ContactsCount.ToString(), "Contacts", new { item.AccountId, item.AccountName});
+                        @Html.ActionLink(item.ContactsCount.ToString(), "Contacts", new { item.AccountId, item.AccountName });
                 }
-            </td>
-        </tr>
-    }
-</table>></div>
-
-
-
-
+                </td>
+            </tr>
+        }
+    </table>>
+</div>
