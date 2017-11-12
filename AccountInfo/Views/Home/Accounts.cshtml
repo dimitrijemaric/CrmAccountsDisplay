@@ -59,7 +59,7 @@
 
         @foreach (var item in Model)
         {
-            <tr class="@(item.NoChildContacts == true ? "classRed": item.NoContactData ? "classOrange" : "")">
+            <tr class="@(item.NoChildContacts == true ? "classOrange": item.NoContactData ? "classRed" : "")">
                 >
                 <td>
                     <a href=@string.Concat(@ConfigurationManager.AppSettings["baseCrmUrl"] as string, "/main.aspx?etn=account&pagetype=entityrecord&id=%7B",@item.AccountId,"%7D") target="_blank">@item.AccountName</a>

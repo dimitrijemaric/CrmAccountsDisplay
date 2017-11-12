@@ -46,7 +46,7 @@ namespace AccountInfo.Controllers
             }
 
 
-            var accountColumns = new ColumnSet(new string[] {"name", "address1_city", "accountid", "primarycontactid"});
+            var accountColumns = new ColumnSet(new string[] {"name", "address1_composite", "accountid", "primarycontactid"});
             var activeAccounts = _crmManager.RetrieveActiveRecordsForEntity("account", accountColumns);
 
             if (activeAccounts.Entities.Count == 0)
@@ -56,21 +56,26 @@ namespace AccountInfo.Controllers
 
             foreach (var account in activeAccounts.Entities)
             {
-                ColumnSet contactColumns = new ColumnSet("fullname", "emailaddress1", "address1_city", "contactid");
+                ColumnSet contactColumns = new ColumnSet("fullname", "emailaddress1", "address1_composite","mobilephone","address1_telephone1", "contactid");
 
-                var allChildContacts = _crmManager.GetAllChildRecords(account.Id, account.LogicalName,  "contact","parentcustomerid", contactColumns).Entities;
+                var allContacts = _crmManager.GetAllChildRecords(account.Id, account.LogicalName,  "contact","parentcustomerid", contactColumns).Entities;
                 var primaryContact = _crmManager.GetParentRecord("contact", account.Id, account.LogicalName,null, "primarycontactid", contactColumns);
 
-              
+                if (primaryContact != null && allContacts.ToList().Find(a => a.Id.Equals(primaryContact.Id)) == null)
+                {
+                    allContacts.Add(primaryContact);
+                }
+
+
 
                 var accountInfo = new CrmAccountInfoViewModel
                 {
                     AccountName = account["name"] as string,
                     AccountId = account.Id,
-                    AccountAddress = account.Attributes.Contains("address1_city") ? account["address1_city"] as string : "n/a",
-                    NoContactData = !account.Attributes.Contains("address1_city"),
-                    NoChildContacts = allChildContacts.Count == 0 && primaryContact == null,
-                    ContactsCount = primaryContact != null && allChildContacts.ToList().Find(a=>a.Id.Equals(primaryContact.Id)) == null ? allChildContacts.Count + 1 : allChildContacts.Count
+                    AccountAddress = account.Attributes.Contains("address1_composite") ? account["address1_composite"] as string : "n/a",
+                    NoContactData = IsAllContactDataMissing(allContacts),
+                    NoChildContacts = allContacts.Count == 0,
+                    ContactsCount = allContacts.Count
                 };
 
                 crmAccountsInfoCollection.Add(accountInfo);
@@ -82,12 +87,16 @@ namespace AccountInfo.Controllers
             return View(crmAccountsInfoCollection);
         }
 
-      
+        private static bool IsAllContactDataMissing(DataCollection<Entity> allContacts)
+        {
+            return allContacts.Where(c => (!c.Attributes.Contains("address1_composite") || c["address1_composite"] == null) && (!c.Attributes.Contains("emailaddress1") || c["emailaddress1"] == null) && (!c.Attributes.Contains("address1_telephone1") || c["address1_telephone1"] == null) && (!c.Attributes.Contains("mobilephone") || c["mobilephone"] == null)).ToList().Count == allContacts.Count;
+        }
+
 
         public ActionResult Contacts(string accountId, string accountName)
         {
 
-            ColumnSet contactColumns = new ColumnSet("fullname", "emailaddress1", "address1_city", "contactid");
+            ColumnSet contactColumns = new ColumnSet("fullname", "emailaddress1", "address1_composite", "contactid");
             var allChildContacts = _crmManager.GetAllChildRecords(new Guid(accountId), "account", "contact", "parentcustomerid",contactColumns).Entities;
             var primaryContact = _crmManager.GetParentRecord("contact",new Guid(accountId), "account",null, "primarycontactid", contactColumns);
 
@@ -100,7 +109,7 @@ namespace AccountInfo.Controllers
                     {
                         ContactName = primaryContact["fullname"] as string,
                         Email = primaryContact.Attributes.Contains("emailaddress1") ? primaryContact["emailaddress1"] as string : "n/a",
-                        Location = primaryContact.Attributes.Contains("address1_city") ? primaryContact["address1_city"] as string : "n/a",
+                        Location = primaryContact.Attributes.Contains("address1_composite") ? primaryContact["address1_composite"] as string : "n/a",
                         ContactId = (Guid)primaryContact["contactid"],
                         isPrimary = true
                     }
@@ -117,7 +126,7 @@ namespace AccountInfo.Controllers
                         {
                             ContactName = contact["fullname"] as string,
                             Email = contact.Attributes.Contains("emailaddress1") ? contact["emailaddress1"] as string : "n/a",
-                            Location = contact.Attributes.Contains("address1_city") ? contact["address1_city"] as string : "n/a",
+                            Location = contact.Attributes.Contains("address1_composite") ? contact["address1_composite"] as string : "n/a",
                             ContactId = (Guid) contact["contactid"],
                             isPrimary = false
                         }
